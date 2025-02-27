@@ -4,7 +4,7 @@ import {
   NetworkAddress,
   NetworkPrefix,
   Mnemonic,
-} from './ergo_lib_wasm.js';
+} from './ergo_lib_wasm.js'; // Assume the WASM module is present ( this gets dynamically injected by the prebuild script )
 
 // Function to convert a string to a Uint8Array (browser-compatible)
 function stringToUint8Array(str) {

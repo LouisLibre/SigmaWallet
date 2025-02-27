@@ -2,7 +2,7 @@ import path from 'path';
 import webpack from 'webpack';
 
 export default {
-  entry: './ergo_lib_prebundled.js',
+  entry: './bridge.js',
   output: {
     filename: 'ergo_lib_bundle.js',
     path: path.resolve('./', 'dist'),

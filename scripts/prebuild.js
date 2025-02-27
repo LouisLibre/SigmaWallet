@@ -50,7 +50,7 @@ try {
   });
 
   // Copy Webpack files to temporary build directory
-  const webpackFiles = ['ergo_lib_prebundled.js', 'webpack.config.js'];
+  const webpackFiles = ['bridge.js', 'webpack.config.js'];
   webpackFiles.forEach(file => {
     fs.copyFileSync(
       path.join(ergo_lib_dir, file),
