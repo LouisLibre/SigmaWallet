@@ -2,16 +2,19 @@
   "name": "SigmaWallet",
   "version": "0.0.1",
   "private": true,
+  "type": "module",
   "scripts": {
     "android": "react-native run-android",
     "ios": "react-native run-ios",
     "lint": "eslint .",
+    "prebuild": "node scripts/prebuild.js",
     "start": "react-native start",
     "test": "jest"
   },
   "dependencies": {
     "react": "19.0.0",
-    "react-native": "0.78.0"
+    "react-native": "0.78.0",
+    "react-native-webview": "^13.13.2"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
