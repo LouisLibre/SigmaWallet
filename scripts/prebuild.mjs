@@ -12,10 +12,6 @@ const ergo_lib_dir = path.resolve('./', './ergo-lib');
 const ergo_lib_build_dir = path.resolve('./', './ergo-lib/dist');
 
 try {
-  // Clean and create temporary directory
-  if (fs.existsSync(tmp_dir)) fs.rmSync(tmp_dir, {recursive: true});
-  fs.mkdirSync(tmp_dir);
-
   // Clone or copy sigma-rust/ergo-lib-wasm (adjust path if local)
   console.log('Cloning sigma-rust/ergo-lib-wasm...');
   // Example: If sigma-rust is a git submodule or local directory
@@ -27,8 +23,6 @@ try {
         stdio: 'inherit',
       },
     );
-  } else {
-    fs.mkdirSync(tmp_dir);
   }
 
   // Build Rust WASM dependencies in temporary directory

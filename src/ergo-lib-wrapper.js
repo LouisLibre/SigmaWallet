@@ -13,14 +13,6 @@ const webContent = `
         <h1>Sigma Wallet</h1>
         <script>
             // Inject WASM binary as base64
-            const originalConsoleLog = console.log;
-            console.log = function(...args) {
-                originalConsoleLog.apply(console, args); // Keep web console logging
-                const message = JSON.stringify({ type: 'log', data: args });
-                if (window.ReactNativeWebView) {
-                    window.ReactNativeWebView.postMessage(message);
-                }
-            };
             const wasmBase64 = '${base64Wasm}';
             const wasmBytes = Uint8Array.from(atob(wasmBase64), c => c.charCodeAt(0));
             const wasmResponse = new Response(wasmBytes, { headers: { 'Content-Type': 'application/wasm' } });
@@ -38,16 +30,12 @@ const webContent = `
             if (typeof __webpack_public_path__ !== 'undefined') {
                 __webpack_public_path__ = ''; // Explicitly set publicPath to empty
             }
-            window.ReactNativeWebView.postMessage("WASM Loaded!")
         </script>
         <script>
-            // Decode base64 bundle.js and execute it
-            window.ReactNativeWebView.postMessage("Loading bundle!");
             try {
             const bundleBase64 = '${base64Bundle}';
             const bundleJs = atob(bundleBase64);
             eval(bundleJs); // Execute decoded bundle.js in web context
-            console.log('Ergo WASM Demo loaded');
             } catch (error) {
               window.ReactNativeWebView.postMessage(error);
             }

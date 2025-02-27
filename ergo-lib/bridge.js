@@ -1,17 +1,119 @@
-import {
-  ExtSecretKey,
-  DerivationPath,
-  NetworkAddress,
-  NetworkPrefix,
-  Mnemonic,
-} from './ergo_lib_wasm.js'; // Assume the WASM module is present ( this gets dynamically injected by the prebuild script )
+import * as ergo_lib_wasm from './ergo_lib_wasm.js';
 
-// Function to convert a string to a Uint8Array (browser-compatible)
-function stringToUint8Array(str) {
-  const encoder = new TextEncoder();
-  return encoder.encode(str);
+const originalConsoleLog = console.log;
+console.log = function (...args) {
+  originalConsoleLog.apply(console, args);
+  const message = JSON.stringify({type: 'log', data: args});
+  if (window.ReactNativeWebView) {
+    window.ReactNativeWebView.postMessage(message);
+  }
+};
+
+const bridgeFunctions = {
+  secretSeedFromMnemonic: mnemonic => {
+    console.log('secretSeedFromMnemonic:', mnemonic);
+    return ergo_lib_wasm.Mnemonic.to_seed(mnemonic, new Uint8Array(0));
+  },
+  // Add more bridge functions as needed:
+  // bridge_anotherFunction: (...args) => { ... },
+  // bridge_yetAnotherFunction: (...args) => { ... },
+};
+
+window.addEventListener('message', event => {
+  try {
+    const data = JSON.parse(event.data);
+    if (data.type === 'call') {
+      const {className, methodName, args, id, instanceId} = data;
+      let result;
+      console.log('call');
+
+      try {
+        if (!instanceId) {
+          // Static method or function call
+          if (className && methodName) {
+            console.log('className && methodName');
+            const Class = ergo_lib_wasm[className];
+            if (Class && typeof Class[methodName] === 'function') {
+              result = Class[methodName].apply(Class, args || []);
+            } else {
+              throw new Error(
+                `Static method ${className}.${methodName} not found`,
+              );
+            }
+          } else if (methodName) {
+            console.log('methodName');
+            if (bridgeFunctions[methodName]) {
+              result = bridgeFunctions[methodName](...(args || []));
+            } else if (
+              ergo_lib_wasm[methodName] &&
+              typeof ergo_lib_wasm[methodName] === 'function'
+            ) {
+              result = ergo_lib_wasm[methodName].apply(
+                ergo_lib_wasm,
+                args || [],
+              );
+            } else {
+              throw new Error(`Function ${methodName} not found`);
+            }
+          } else if (className) {
+            const Class = ergo_lib_wasm[className];
+            if (Class && typeof Class === 'function') {
+              const instance = new Class(...(args || []));
+              const newInstanceId = generateInstanceId();
+              if (!window.ergoInstances) window.ergoInstances = {};
+              window.ergoInstances[newInstanceId] = instance;
+              result = {instanceId: newInstanceId};
+            } else {
+              throw new Error(`Class ${className} not found`);
+            }
+          }
+        } else {
+          // Instance method call
+          if (!window.ergoInstances || !window.ergoInstances[instanceId]) {
+            throw new Error(`Instance with ID ${instanceId} not found`);
+          }
+          const instance = window.ergoInstances[instanceId];
+          if (typeof instance[methodName] !== 'function') {
+            throw new Error(`Instance method ${methodName} not found`);
+          }
+          result = instance[methodName].apply(instance, args || []);
+        }
+
+        const response = JSON.stringify({type: 'response', id, result});
+        window.ReactNativeWebView.postMessage(response);
+      } catch (error) {
+        const errorResponse = JSON.stringify({
+          type: 'error',
+          id,
+          error: error.message,
+        });
+        window.ReactNativeWebView.postMessage(errorResponse);
+      }
+    } else if (data.type === 'destroy') {
+      // Cleanup instance
+      const {instanceId} = data;
+      if (window.ergoInstances && window.ergoInstances[instanceId]) {
+        delete window.ergoInstances[instanceId];
+        const response = JSON.stringify({
+          type: 'response',
+          id: data.id,
+          result: 'destroyed',
+        });
+        window.ReactNativeWebView.postMessage(response);
+      }
+    }
+  } catch (error) {
+    console.error('Error parsing message:', error);
+  }
+});
+
+function generateInstanceId() {
+  return 'instance_' + Math.random().toString(36).substr(2, 9);
 }
 
+console.log('WASM BRIDGE LAODED!');
+
+/*
 // Function to generate a secret seed from a mnemonic
 const secretSeedFromMnemonic = mnemonic => {
   return Mnemonic.to_seed(mnemonic, new Uint8Array(0)); // Pass the string directly
@@ -70,3 +172,4 @@ const main = () => {
 
 // Run the main function
 main();
+*/
