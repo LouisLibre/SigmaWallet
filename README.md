@@ -50,16 +50,16 @@ Follow these steps to set up and run the project:
 
 ## Bridge Notes
 
-The bridge injects `ergo-lib-wasm` inside a `react-native-webview`, enabling Ergo blockchain functionality in React Native. It’s built during the prebuild process via `npm run prebuild`, which:
+The bridge handles communication between `ergo-lib-wasm` and `react-native-webview`, enabling Ergo's functionality inside React Native. The bridge is built during the prebuild process via `npm run prebuild`, which:
 
 - Clones `@ergoplatform/sigma-rust/bindings/ergo-lib-wasm` to a temporary directory, then builds the Rust WASM, and bundles it with Webpack.
-- Encodes the webpacked `ergo_lib_bundle.js` and `ergo_lib_wasm_bg.wasm` to base64 JSON files and copies them to `./ergo-lib/dist/`.
+- Encodes the webpack bundle `ergo_lib_bundle.js` and `ergo_lib_wasm_bg.wasm` to base64 JSON files and copies them to `./ergo-lib/dist/`.
 - This baase64 JSON files then get injected into the react-native-webview via `./src/ergo-lib-wrapper.js`
 
 Communication:
 
-React Native sends messages via `webViewRef.current.postMessage` for example `webViewRef.current.postMessage({ type: 'call', className, methodName, args, id })`.
+React Native sends messages via `webViewRef.current.postMessage` for example `webViewRef.current.postMessage({ type: 'call', wasmClassName, wasmMethodName, args, id })`.
 
-The bridge (in `./ergo-lib/bridge.js`) proxies ergo-lib-wasm calls, responding with `{ type: 'response', id, result }` or `{ type: 'error', id, error }` via `window.ReactNativeWebView.postMessage`, handled by WebView’s `onMessage` callback.
+The bridge itself (in `./ergo-lib/bridge.js`) proxies the calls coming from react native, responding back with `{ type: 'response', id, result }` or `{ type: 'error', id, error }` via `window.ReactNativeWebView.postMessage`. The messages then get handled by the ReactNativeWebView `onMessage` callback.
 
 Run `npm run prebuild` for any changes to `@ergoplatfrom/sigma-rust/ergo-lib-wasm` or `./ergo-lib/bridge.js`.
