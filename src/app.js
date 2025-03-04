@@ -1,6 +1,8 @@
 import React from 'react';
-import {SafeAreaView, StyleSheet, Button, Text} from 'react-native';
+import {View} from 'react-native';
 import {WebView} from 'react-native-webview';
+import ImportWalletScreen from './screens/import-wallet';
+import HomeScreen from './screens/home-screen';
 const webContent = require('./ergo-lib-wrapper'); // Use require for the CommonJS export from webContent.js
 
 // ...
@@ -37,28 +39,26 @@ const App = () => {
   };
 
   return (
-    <SafeAreaView>
-      <WebView
-        ref={webViewRef}
-        source={{html: webContent}}
-        style={styles.webview}
-        javaScriptEnabled={true}
-        domStorageEnabled={true}
-        allowFileAccess={true}
-        originWhitelist={['*']}
-        onMessage={handleMessage}
-      />
-      <Button title="Send Message" onPress={sendMessage} />
-      <Text>{output}</Text>
-    </SafeAreaView>
+    <>
+      <HomeScreen />
+      {/*<ImportWalletScreen ergoLibRef={webViewRef} /> */}
+      <View style={{width: 0, height: 0}}>
+        <WebView
+          ref={webViewRef}
+          source={{html: webContent}}
+          style={{
+            width: 0,
+            height: 0,
+          }}
+          javaScriptEnabled={true}
+          domStorageEnabled={true}
+          allowFileAccess={true}
+          originWhitelist={['*']}
+          onMessage={handleMessage}
+        />
+      </View>
+    </>
   );
 };
-
-const styles = StyleSheet.create({
-  webview: {
-    width: 0,
-    height: 0,
-  },
-});
 
 export default App;
