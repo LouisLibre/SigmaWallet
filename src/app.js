@@ -1,8 +1,13 @@
 import React from 'react';
 import {View} from 'react-native';
 import {WebView} from 'react-native-webview';
-import ImportWalletScreen from './screens/import-wallet';
+import {NavigationContainer} from '@react-navigation/native';
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
+
+import RecoverWalletScreen from './screens/import-wallet';
 import HomeScreen from './screens/home-screen';
+
+const Stack = createNativeStackNavigator();
 const webContent = require('./ergo-lib-wrapper'); // Use require for the CommonJS export from webContent.js
 
 // ...
@@ -40,7 +45,19 @@ const App = () => {
 
   return (
     <>
-      <HomeScreen />
+      <NavigationContainer>
+        <Stack.Navigator
+          screenOptions={{
+            headerShown: false,
+            animation: 'slide_from_right',
+          }}>
+          <Stack.Screen name="Home" component={HomeScreen} />
+          <Stack.Screen name="RecoverWallet" component={RecoverWalletScreen} />
+          {/* Add future screens here */}
+          {/*<Stack.Screen name="CreateWallet" component={CreateWalletScreen} />*/}
+          {/*<Stack.Screen name="MainWallet" component={MainWalletScreen} />*/}
+        </Stack.Navigator>
+      </NavigationContainer>
       {/*<ImportWalletScreen ergoLibRef={webViewRef} /> */}
       <View style={{width: 0, height: 0}}>
         <WebView

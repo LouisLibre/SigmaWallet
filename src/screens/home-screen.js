@@ -163,6 +163,7 @@ const HomeScreen = ({navigation}) => {
   const handleRecoverWallet = () => {
     console.log('Recover existing wallet');
     // navigation.navigate('RecoverWallet');
+    navigation.navigate('RecoverWallet');
   };
 
   return (
