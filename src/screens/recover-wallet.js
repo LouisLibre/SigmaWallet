@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useContext} from 'react';
 import {
   View,
   Text,
@@ -13,6 +13,7 @@ import {
   Alert,
 } from 'react-native';
 import Svg, {Path} from 'react-native-svg';
+import {ErgoLibContext} from './../contexts/ergo-lib-context';
 
 const COLORS = {
   background: '#121212',
@@ -161,14 +162,17 @@ const BackIcon = ({color = COLORS.primary}) => (
 const RecoverWalletScreen = ({navigation}) => {
   const [mnemonic, setMnemonic] = useState('');
   const [inputFocused, setInputFocused] = useState(false);
+  const {sendMessage} = useContext(ErgoLibContext);
 
   const wordCount = mnemonic.trim() ? mnemonic.trim().split(/\s+/).length : 0;
   const isValidWordCount = wordCount >= 12 && wordCount <= 24;
   const isButtonActive = isValidWordCount;
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
     if (isButtonActive) {
       console.log('Recovering wallet with mnemonic:', mnemonic);
+      const seed = await sendMessage('secretSeedFromMnemonic', [mnemonic]);
+      console.log('Received seed:', seed);
       // Add your wallet recovery logic here
       // For demo purposes, show success message
       Alert.alert(

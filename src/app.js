@@ -3,8 +3,9 @@ import {View} from 'react-native';
 import {WebView} from 'react-native-webview';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import {ErgoLibProvider} from './contexts/ergo-lib-context';
 
-import RecoverWalletScreen from './screens/import-wallet';
+import RecoverWalletScreen from './screens/recover-wallet';
 import HomeScreen from './screens/home-screen';
 
 const Stack = createNativeStackNavigator();
@@ -44,7 +45,7 @@ const App = () => {
   };
 
   return (
-    <>
+    <ErgoLibProvider>
       <NavigationContainer>
         <Stack.Navigator
           screenOptions={{
@@ -74,7 +75,7 @@ const App = () => {
           onMessage={handleMessage}
         />
       </View>
-    </>
+    </ErgoLibProvider>
   );
 };
 
