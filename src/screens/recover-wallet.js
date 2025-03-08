@@ -160,7 +160,9 @@ const BackIcon = ({color = COLORS.primary}) => (
 );
 
 const RecoverWalletScreen = ({navigation}) => {
-  const [mnemonic, setMnemonic] = useState('');
+  const [mnemonic, setMnemonic] = useState(
+    'change me do not use me change me do not use me',
+  );
   const [inputFocused, setInputFocused] = useState(false);
   const {sendMessage} = useContext(ErgoLibContext);
 
@@ -171,7 +173,7 @@ const RecoverWalletScreen = ({navigation}) => {
   const handleContinue = async () => {
     if (isButtonActive) {
       console.log('Recovering wallet with mnemonic:', mnemonic);
-      const seed = await sendMessage('secretSeedFromMnemonic', [mnemonic]);
+      const seed = await sendMessage('addressFromMnemonic', [mnemonic]);
       console.log('Received seed:', seed);
       // Add your wallet recovery logic here
       // For demo purposes, show success message

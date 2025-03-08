@@ -14,6 +14,29 @@ const bridgeFunctions = {
     console.log('secretSeedFromMnemonic:', mnemonic);
     return ergo_lib_wasm.Mnemonic.to_seed(mnemonic, new Uint8Array(0));
   },
+  addressFromMnemonic: mnemonic => {
+    const seed = ergo_lib_wasm.Mnemonic.to_seed(mnemonic, new Uint8Array(0));
+    const rootSecret = ergo_lib_wasm.ExtSecretKey.derive_master(seed);
+    let changePath = ergo_lib_wasm.DerivationPath.new(0, new Uint32Array([0]));
+    const changeSecretKey = rootSecret.derive(changePath);
+    const changePubKey = changeSecretKey.public_key();
+    const changeAddress = ergo_lib_wasm.NetworkAddress.new(
+      ergo_lib_wasm.NetworkPrefix.Mainnet,
+      changePubKey.to_address(),
+    );
+    console.log(`Change address: ${changeAddress.to_base58()}`);
+    changePath = ergo_lib_wasm.DerivationPath.new(0, new Uint32Array([0]));
+    const firstPath = rootSecret.derive(changePath).path().next();
+    console.log(`First derived path: ${firstPath}`);
+    const firstSecretKey = rootSecret.derive(firstPath);
+    const firstPubkey = firstSecretKey.public_key();
+    const firstAddress = ergo_lib_wasm.NetworkAddress.new(
+      ergo_lib_wasm.NetworkPrefix.Mainnet,
+      firstPubkey.to_address(),
+    );
+    console.log(`First derived address: ${firstAddress.to_base58()}`);
+    return firstAddress.to_base58();
+  },
   // Add more bridge functions as needed:
   // bridge_anotherFunction: (...args) => { ... },
   // bridge_yetAnotherFunction: (...args) => { ... },
